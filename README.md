@@ -74,20 +74,42 @@ npm run build
 
 This compiles TypeScript to JavaScript in the `build/` directory and makes the main file executable.
 
-## Usage with MCP Client
+## Setup with Claude Desktop
 
-Add this server to your MCP client configuration:
+To use this weather server with Claude Desktop:
 
-```json
-{
-  "mcpServers": {
-    "weather": {
-      "command": "node",
-      "args": ["/path/to/weather/build/index.js"]
-    }
-  }
-}
-```
+1. **Build the server** (if not already done):
+   ```bash
+   npm run build
+   ```
+
+2. **Find your Claude Desktop configuration file**:
+   - **macOS/Linux**: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+   You can open it directly with:
+   ```bash
+   # macOS/Linux
+   code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   ```
+
+3. **Add the weather server to your configuration**:
+   ```json
+   {
+     "mcpServers": {
+       "weather": {
+         "command": "node",
+         "args": ["/ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/index.js"]
+       }
+     }
+   }
+   ```
+
+   Replace `/ABSOLUTE/PATH/TO/PARENT/FOLDER/weather` with the actual absolute path to your weather project directory.
+
+4. **Save the configuration file and restart Claude Desktop**.
+
+The MCP UI elements will only show up in Claude Desktop if at least one server is properly configured.
 
 ## API Data Source
 
