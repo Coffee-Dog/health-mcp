@@ -1,42 +1,66 @@
-import { AlertFeature, ForecastPeriod } from "./types.js";
+import { FoodSearchResult, FoodDetailsResponse, FoodNutrient } from "./types.js";
 
-export function formatAlert(feature: AlertFeature): string {
-  const props = feature.properties;
+export function formatNutrient(foodNutrient: FoodNutrient): string {
+  const name = foodNutrient.nutrient?.name || `Nutrient ${foodNutrient.nutrient?.number || "Unknown"}`;
+  const value = foodNutrient.amount !== undefined && foodNutrient.amount !== null ? 
+    Number(foodNutrient.amount).toFixed(2) : "N/A";
+  const unit = foodNutrient.nutrient?.unitName || "";
+  return `${name}: ${value} ${unit}`.trim();
+}
+
+export function formatFoodSearchResult(food: FoodSearchResult): string {
+  // Filter out nutrients with no meaningful data
+  const validNutrients = food.foodNutrients?.filter(n => 
+    n.nutrient?.name && 
+    n.amount !== undefined && 
+    n.amount !== null && 
+    n.amount !== 0
+  ).slice(0, 5) || [];
+  
+  const nutrients = validNutrients.map(formatNutrient);
+  const nutrientInfo = nutrients.length > 0 ? `\nTop Nutrients:\n${nutrients.join("\n")}` : "";
+  
   return [
-    `Event: ${props.event || "Unknown"}`,
-    `Area: ${props.areaDesc || "Unknown"}`,
-    `Severity: ${props.severity || "Unknown"}`,
-    `Status: ${props.status || "Unknown"}`,
-    `Headline: ${props.headline || "No headline"}`,
+    `FDC ID: ${food.fdcId}`,
+    `Description: ${food.description}`,
+    `Data Type: ${food.dataType || "Unknown"}`,
+    food.brandOwner ? `Brand: ${food.brandOwner}` : "",
+    food.gtinUpc ? `UPC: ${food.gtinUpc}` : "",
+    nutrientInfo,
     "---",
-  ].join("\n");
+  ].filter(line => line !== "").join("\n");
 }
 
-export function formatForecastPeriod(period: ForecastPeriod): string {
+export function formatFoodDetails(food: FoodDetailsResponse): string {
+  // Filter out nutrients with no meaningful data and sort by amount
+  const validNutrients = food.foodNutrients?.filter(n => 
+    n.nutrient?.name && 
+    n.amount !== undefined && 
+    n.amount !== null && 
+    n.amount !== 0
+  ).sort((a, b) => (b.amount || 0) - (a.amount || 0)) || [];
+  
+  const nutrients = validNutrients.map(formatNutrient);
+  const nutrientInfo = nutrients.length > 0 ? `\nNutrients:\n${nutrients.join("\n")}` : "";
+  
   return [
-    `${period.name || "Unknown"}:`,
-    `Temperature: ${period.temperature || "Unknown"}°${
-      period.temperatureUnit || "F"
-    }`,
-    `Wind: ${period.windSpeed || "Unknown"} ${period.windDirection || ""}`,
-    `${period.shortForecast || "No forecast available"}`,
-    "---",
-  ].join("\n");
+    `FDC ID: ${food.fdcId}`,
+    `Description: ${food.description}`,
+    `Data Type: ${food.dataType || "Unknown"}`,
+    food.publishedDate ? `Published: ${food.publishedDate}` : "",
+    food.brandOwner ? `Brand: ${food.brandOwner}` : "",
+    food.gtinUpc ? `UPC: ${food.gtinUpc}` : "",
+    food.ingredients ? `Ingredients: ${food.ingredients}` : "",
+    nutrientInfo,
+  ].filter(line => line !== "").join("\n");
 }
 
-export function formatForecast(
-  periods: ForecastPeriod[],
-  latitude: number,
-  longitude: number
-): string {
-  const formattedForecast = periods.map(formatForecastPeriod);
-  return `Forecast for ${latitude}, ${longitude}:\n\n${formattedForecast.join("\n")}`;
+export function formatFoodSearchResults(foods: FoodSearchResult[], query: string, totalHits: number): string {
+  const formattedFoods = foods.map(formatFoodSearchResult);
+  return `Search results for "${query}" (${totalHits} total hits):\n\n${formattedFoods.join("\n")}`;
 }
 
-export function formatAlerts(
-  features: AlertFeature[],
-  stateCode: string
-): string {
-  const formattedAlerts = features.map(formatAlert);
-  return `Active alerts for ${stateCode}:\n\n${formattedAlerts.join("\n")}`;
+export function formatFoodsList(foods: FoodSearchResult[], totalHits: number): string {
+  const formattedFoods = foods.map(formatFoodSearchResult);
+  return `Food list (${totalHits} total items):\n\n${formattedFoods.join("\n")}`;
 }

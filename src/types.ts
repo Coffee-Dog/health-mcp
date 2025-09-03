@@ -1,34 +1,54 @@
-export interface AlertFeature {
-  properties: {
-    event?: string;
-    areaDesc?: string;
-    severity?: string;
-    status?: string;
-    headline?: string;
-  };
+export interface Nutrient {
+  id: number;
+  number: string;
+  name: string;
+  rank: number;
+  unitName: string;
 }
 
-export interface ForecastPeriod {
-  name?: string;
-  temperature?: number;
-  temperatureUnit?: string;
-  windSpeed?: string;
-  windDirection?: string;
-  shortForecast?: string;
+export interface FoodNutrient {
+  type: string;
+  nutrient: Nutrient;
+  id?: number;
+  amount?: number;
+  dataPoints?: number;
+  max?: number;
+  min?: number;
+  median?: number;
 }
 
-export interface AlertsResponse {
-  features: AlertFeature[];
+export interface FoodSearchResult {
+  fdcId: number;
+  description: string;
+  dataType?: string;
+  publishedDate?: string;
+  brandOwner?: string;
+  gtinUpc?: string;
+  ingredients?: string;
+  foodNutrients?: FoodNutrient[];
 }
 
-export interface PointsResponse {
-  properties: {
-    forecast?: string;
-  };
+export interface FoodSearchResponse {
+  foods: FoodSearchResult[];
+  totalHits: number;
+  currentPage: number;
+  totalPages: number;
 }
 
-export interface ForecastResponse {
-  properties: {
-    periods: ForecastPeriod[];
-  };
+export interface FoodDetailsResponse {
+  fdcId: number;
+  description: string;
+  dataType?: string;
+  publishedDate?: string;
+  brandOwner?: string;
+  gtinUpc?: string;
+  ingredients?: string;
+  foodNutrients?: FoodNutrient[];
+}
+
+export interface FoodListResponse {
+  foods: FoodSearchResult[];
+  totalHits: number;
+  currentPage: number;
+  totalPages: number;
 }

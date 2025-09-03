@@ -1,9 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { registerWeatherTools } from "./tools.js";
+import { registerHealthTools } from "./tools.js";
 
 const server = new McpServer({
-  name: "weather",
+  name: "health-mcp",
   version: "1.0.0",
   capabilities: {
     resources: {},
@@ -11,12 +11,12 @@ const server = new McpServer({
   },
 });
 
-registerWeatherTools(server);
+registerHealthTools(server);
 
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Weather MCP Server running on stdio");
+  console.error("Health MCP Server running on stdio");
 }
 
 main().catch((error) => {

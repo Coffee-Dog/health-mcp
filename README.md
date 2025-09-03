@@ -1,40 +1,60 @@
-# Weather MCP Server
+# Health MCP Server
 
-A Model Context Protocol (MCP) server that provides weather information using the National Weather Service API.
+A Model Context Protocol (MCP) server that provides nutrition and food information using the USDA FoodData Central API.
 
 ## Features
 
-- **Weather Alerts**: Get active weather alerts for any US state
-- **Weather Forecasts**: Get detailed weather forecasts for any location (latitude/longitude)
+- **Food Search**: Search for foods in the USDA FoodData Central database
+- **Food Details**: Get detailed nutrition information for specific foods
+- **Food Lists**: Browse paginated lists of foods from the database
 - **Clean Architecture**: Modular codebase with separation of concerns
 
 ## Tools
 
-### `get_alerts`
-Get weather alerts for a US state.
+### `search_foods`
+Search for foods in the USDA FoodData Central database.
 
 **Parameters:**
-- `state` (string): Two-letter state code (e.g., "CA", "NY")
+- `query` (string): Search query for food items
+- `pageSize` (number, optional): Number of results per page (1-200, default: 25)
+- `pageNumber` (number, optional): Page number for pagination (default: 1)
+- `dataType` (array, optional): Filter by data type ["Branded", "SR Legacy", "Foundation", "Survey (FNDDS)"]
 
 **Example:**
 ```json
 {
-  "state": "CA"
+  "query": "cheddar cheese",
+  "pageSize": 10,
+  "pageNumber": 1,
+  "dataType": ["Branded"]
 }
 ```
 
-### `get_forecast`
-Get weather forecast for a specific location.
+### `get_food_details`
+Get detailed nutrition information for a specific food by FDC ID.
 
 **Parameters:**
-- `latitude` (number): Latitude of the location (-90 to 90)
-- `longitude` (number): Longitude of the location (-180 to 180)
+- `fdcId` (number): FoodData Central ID of the food item
 
 **Example:**
 ```json
 {
-  "latitude": 37.7749,
-  "longitude": -122.4194
+  "fdcId": 173410
+}
+```
+
+### `list_foods`
+Get a paginated list of foods from the USDA database.
+
+**Parameters:**
+- `pageSize` (number, optional): Number of results per page (1-200, default: 25)
+- `pageNumber` (number, optional): Page number for pagination (default: 1)
+
+**Example:**
+```json
+{
+  "pageSize": 50,
+  "pageNumber": 2
 }
 ```
 
@@ -61,7 +81,7 @@ This project is built with TypeScript and follows the [MCP Node.js quickstart gu
 src/
 ├── index.ts        # Main server entry point
 ├── types.ts        # TypeScript interfaces and types
-├── api-client.ts   # NWS API client
+├── api-client.ts   # USDA FoodData Central API client
 ├── formatters.ts   # Data formatting utilities
 └── tools.ts        # MCP tool definitions
 ```
@@ -93,19 +113,19 @@ To use this weather server with Claude Desktop:
    code ~/Library/Application\ Support/Claude/claude_desktop_config.json
    ```
 
-3. **Add the weather server to your configuration**:
+3. **Add the health server to your configuration**:
    ```json
    {
      "mcpServers": {
-       "weather": {
+       "health": {
          "command": "node",
-         "args": ["/ABSOLUTE/PATH/TO/PARENT/FOLDER/weather/build/index.js"]
+         "args": ["/ABSOLUTE/PATH/TO/PARENT/FOLDER/health-mcp/build/index.js"]
        }
      }
    }
    ```
 
-   Replace `/ABSOLUTE/PATH/TO/PARENT/FOLDER/weather` with the actual absolute path to your weather project directory.
+   Replace `/ABSOLUTE/PATH/TO/PARENT/FOLDER/health-mcp` with the actual absolute path to your health-mcp project directory.
 
 4. **Save the configuration file and restart Claude Desktop**.
 
@@ -113,7 +133,16 @@ The MCP UI elements will only show up in Claude Desktop if at least one server i
 
 ## API Data Source
 
-This server uses the National Weather Service (NWS) API, which provides weather data for locations within the United States. The API is free and does not require authentication.
+This server uses the USDA FoodData Central API, which provides comprehensive nutrition data for foods. The API requires a data.gov API key for access.
+
+### Data Types Available:
+- **Branded**: Commercial food products with UPC codes
+- **SR Legacy**: Standard Reference Legacy database
+- **Foundation**: Foundation Foods providing nutrient data
+- **Survey (FNDDS)**: Food and Nutrient Database for Dietary Studies
+
+### Rate Limits
+The API has a default rate limit of 1,000 requests per hour per IP address.
 
 ## License
 
